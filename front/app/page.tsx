@@ -13,7 +13,35 @@ export default function Home() {
     const [internetSpeed, setInternetSpeed] = useState(23);
     const [avgSpeed, setAvgSpeed] = useState(18);
     const [ping, setPing] = useState(500);
-    const [weather, setWeather] = useState(null);
+    interface WeatherPeriod {
+        state: string;
+        temp: number;
+    }
+
+    interface WeatherDay {
+        morning: WeatherPeriod;
+        day: WeatherPeriod;
+        evening: WeatherPeriod;
+    }
+
+    interface WeatherWeek {
+        day_1: WeatherPeriod & { max: number };
+        day_2: WeatherPeriod & { max: number };
+        day_3: WeatherPeriod & { max: number };
+        day_4: WeatherPeriod & { max: number };
+        day_5: WeatherPeriod & { max: number };
+        day_6: WeatherPeriod & { max: number };
+    }
+
+    interface Weather {
+        main: WeatherPeriod;
+        day: WeatherDay;
+        week: WeatherWeek;
+    }
+
+    // Типизация состояния погоды
+    const [weather, setWeather] = useState<Weather | null>(null);
+
     const [lat, setLat] = useState(50.6167);
     const [lon, setLon] = useState(36.5833);
     const [city, setCity] = useState("Белгород");
