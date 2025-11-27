@@ -1,0 +1,15 @@
+{
+  "app": {
+    "[project]/app/_not-found/page": [
+      "static/media/d3fe2f289711ac3f-s.p.50575af1.woff2",
+      "static/media/a343f882a40d2cc9-s.p.71e1367e.woff2"
+    ],
+    "[project]/app/page": [
+      "static/media/d3fe2f289711ac3f-s.p.50575af1.woff2",
+      "static/media/a343f882a40d2cc9-s.p.71e1367e.woff2"
+    ]
+  },
+  "appUsingSizeAdjust": true,
+  "pages": {},
+  "pagesUsingSizeAdjust": false
+}

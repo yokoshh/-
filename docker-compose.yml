@@ -1,0 +1,22 @@
+services:
+    fastapi-app:
+        build:
+            context: ./backend
+        container_name: fastapi-app
+        ports:
+            - "8000:8000"
+        environment:
+            - BACKEND_URL=http://fastapi-app:8000
+        restart: unless-stopped
+
+    frontend:
+        build:
+            context: ./frontend
+        container_name: nextjs-frontend
+        ports:
+            - "3000:3000"
+        environment:
+            - NEXT_PUBLIC_BACKEND_URL=http://fastapi-app:8000
+        depends_on:
+            - fastapi-app
+        restart: unless-stopped
