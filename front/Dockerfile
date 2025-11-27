@@ -1,27 +1,23 @@
-# Стадия 1: Билд приложения
-FROM node:18-alpine AS builder
+# Используем Node 20 с Alpine
+FROM node:20-alpine
 
+# Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем package.json и package-lock.json для установки зависимостей
+# Копируем package.json и package-lock.json
 COPY package*.json ./
+
+# Устанавливаем зависимости
 RUN npm ci
 
-# Копируем весь код и билдим
+# Копируем весь исходный код
 COPY . .
+
+# Билдим Next.js приложение
 RUN npm run build
 
-# Стадия 2: Продакшен-образ
-FROM node:18-alpine
+# Экспонируем порт приложения
+EXPOSE 3000
 
-WORKDIR /app
-
-# Копируем только необходимые файлы из билдера
-COPY --from=builder /app/next.config.js ./
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-
-# Запускаем Next.js в продакшен-режиме
+# Запуск приложения
 CMD ["npm", "start"]
