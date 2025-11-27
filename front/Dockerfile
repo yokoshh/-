@@ -14,12 +14,16 @@ COPY next.config.js* tsconfig.json ./
 
 # Устанавливаем переменные окружения для pnpm
 ENV PNPM_NETWORK_TIMEOUT=600000
+ENV NODE_OPTIONS=--max_old_space_size=4096  # Фикс OOM
+
+# Зеркало для ускорения (опционально)
+RUN pnpm config set registry https://registry.npmmirror.com/
 
 # Устанавливаем зависимости с кэшированием
 RUN --mount=type=cache,target=/root/.pnpm-store \
-    pnpm install --frozen-lockfile || \
-    pnpm install --frozen-lockfile || \
-    pnpm install
+    pnpm install --frozen-lockfile --prefer-offline --ignore-scripts || \
+    pnpm install --frozen-lockfile --prefer-offline --ignore-scripts || \
+    pnpm install --prefer-offline --ignore-scripts
 
 # Копируем исходный код и собираем
 COPY . .
