@@ -1,10 +1,12 @@
+version: "3.9"
+
 services:
     fastapi-app:
         build:
             context: ./backend
         container_name: fastapi-app
         ports:
-            - "8000:8000"
+            - "8001:8000" # 8001 на хосте свободен
         environment:
             - BACKEND_URL=http://fastapi-app:8000
         restart: unless-stopped
@@ -14,7 +16,7 @@ services:
             context: ./frontend
         container_name: nextjs-frontend
         ports:
-            - "3000:3000"
+            - "3001:3000" # 3001 на хосте свободен
         environment:
             - NEXT_PUBLIC_BACKEND_URL=http://fastapi-app:8000
         depends_on:
