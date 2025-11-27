@@ -2,21 +2,17 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Ускорение и исправление сетевых проблем
-RUN npm config set dns-result-order ipv4first
-
-# Копируем package.json
+# Копируем package.json и package-lock.json
 COPY package*.json ./
 
-# Ставим ВСЕ зависимости (dev + prod)
+# Устанавливаем все зависимости
 RUN npm ci
 
-# Копируем проект
+# Копируем весь проект
 COPY . .
 
 # Сборка Next.js
 RUN npm run build
-
 
 # 2. Production stage
 FROM node:20-alpine AS runner
@@ -24,17 +20,14 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Копируем нужные файлы
+# Копируем нужные файлы из builder
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/next.config.js ./
 
-# ❗ Копируем node_modules из builder-а
+# Копируем готовые node_modules
 COPY --from=builder /app/node_modules ./node_modules
-
-# ❗ Никакого npm install здесь быть не должно
-# Сервер всё равно не даст скачать пакеты
 
 EXPOSE 3000
 CMD ["npm", "start"]
