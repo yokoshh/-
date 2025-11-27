@@ -3,37 +3,49 @@
 FROM node:20-slim AS builder
 WORKDIR /app
 
-# Установка pnpm с кэшированием
+# Устанавливаем pnpm с кэшированием
 RUN --mount=type=cache,target=/root/.npm \
     npm install -g pnpm
 
-# Копируем только package файлы для лучшего кэширования
+# Копируем только package файлы и config-файлы
 COPY package*.json ./
 COPY pnpm-lock.yaml* ./
+COPY next.config.js* tsconfig.json ./
 
-# Устанавливаем зависимости с кэшированием и повторами
+# Устанавливаем переменные окружения для pnpm
+ENV PNPM_NETWORK_TIMEOUT=600000
+
+# Устанавливаем зависимости с кэшированием
 RUN --mount=type=cache,target=/root/.pnpm-store \
-    pnpm install --frozen-lockfile --network-timeout 60000 || \
-    pnpm install --frozen-lockfile --network-timeout 60000 || \
-    pnpm install --frozen-lockfile --network-timeout 60000
+    pnpm install --frozen-lockfile || \
+    pnpm install --frozen-lockfile || \
+    pnpm install
 
 # Копируем исходный код и собираем
 COPY . .
+# Важно: для standalone нужно установить output: 'standalone' в next.config.js
 RUN npm run build
 
-# 2. Production stage
+# 2. Production stage (Минимальный образ для запуска)
+# Next.js standalone не требует node_modules
 FROM node:20-alpine AS runner
 WORKDIR /app
-ENV NODE_ENV=production
 
-# Копируем только нужные файлы из стадии сборки
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/.next ./.next
+# Устанавливаем ENV NODE_ENV=production
+ENV NODE_ENV=production
+# Устанавливаем PORT
+ENV PORT=3000
+
+# Копируем:
+# 1. Standalone-сборку (включает server.js, необходимые node_modules и .next/static)
+COPY --from=builder /app/.next/standalone ./
+# 2. Public-файлы
 COPY --from=builder /app/public ./public
-# Если есть другие нужные файлы (next.config.js, etc.)
-COPY --from=builder /app/next.config.js* ./
-COPY --from=builder /app/tsconfig.json ./
+# 3. next.config.js (если нужен, но часто уже внутри standalone)
+COPY --from=builder /app/next.config.js ./next.config.js
+# 4. package.json (если нужен для скриптов или информации)
+COPY --from=builder /app/package.json ./package.json
 
 EXPOSE 3000
-CMD ["npm", "start"]
+# CMD для Next.js standalone
+CMD ["node", "server.js"]
