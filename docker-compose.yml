@@ -3,7 +3,7 @@ version: "3.9"
 services:
     fastapi-app:
         build:
-            context: ./backend
+            context: ./back
         container_name: fastapi-app
         ports:
             - "8001:8000" # 8001 на хосте свободен
@@ -13,7 +13,7 @@ services:
 
     frontend:
         build:
-            context: ./frontend
+            context: ./front
         container_name: nextjs-frontend
         ports:
             - "3001:3000" # 3001 на хосте свободен
