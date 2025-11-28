@@ -1,12 +1,10 @@
-version: "3.9"
-
 services:
     fastapi-app:
         build:
             context: ./back
         container_name: fastapi-app
         ports:
-            - "8001:8000" # 8001 на хосте свободен
+            - "8001:8000"
         environment:
             - BACKEND_URL=https://api.homepage.oasis31.ru
         restart: unless-stopped
@@ -14,11 +12,11 @@ services:
     frontend:
         build:
             context: ./front
+            args:
+                NEXT_PUBLIC_BACKEND_URL: https://api.homepage.oasis31.ru
         container_name: nextjs-frontend
         ports:
-            - "3001:3000" # 3001 на хосте свободен
-        environment:
-            - NEXT_PUBLIC_BACKEND_URL=https://api.homepage.oasis31.ru
+            - "3001:3000"
         depends_on:
             - fastapi-app
         restart: unless-stopped

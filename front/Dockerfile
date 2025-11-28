@@ -14,6 +14,8 @@ RUN npm ci
 COPY . .
 
 # Билдим Next.js приложение
+ARG NEXT_PUBLIC_BACKEND_URL
+ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
 RUN npm run build
 
 # Экспонируем порт приложения
